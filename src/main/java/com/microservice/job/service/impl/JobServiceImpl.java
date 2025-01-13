@@ -2,11 +2,15 @@ package com.microservice.job.service.impl;
 
 import com.microservice.job.bean.Company;
 import com.microservice.job.bean.Job;
-import com.microservice.job.dto.JobCompanyDTO;
+import com.microservice.job.bean.Review;
+import com.microservice.job.dto.JobDTO;
 import com.microservice.job.entity.JobEntity;
 import com.microservice.job.repository.JobRepository;
 import com.microservice.job.service.JobServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
@@ -28,18 +32,18 @@ public class JobServiceImpl implements JobServices {
     RestTemplate restTemplate;
 
     @Override
-    public List<JobCompanyDTO> findAll() {
+    public List<JobDTO> findAll() {
         List<JobEntity> jobEntityList = jobRepository.findAll();
         return jobEntityList
                 .stream()
-                .map(this::convertJobCompanyDTO)
+                .map(this::convertJobEntityToJobCompanyDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Job jobById(Long id) {
+    public JobDTO jobById(Long id) {
         Optional<JobEntity> jobEntityOptioal = jobRepository.findById(id);
-        return jobEntityOptioal.map(this::convertJobEntityToJob)
+        return jobEntityOptioal.map(this::convertJobEntityToJobCompanyDTO)
                 .orElse(null);
 
        /* Optional<Job> job = jobs.stream()
@@ -85,7 +89,6 @@ public class JobServiceImpl implements JobServices {
             jobEntity.setMaxSalary(reqestJob.getMaxSalary());
             jobEntity.setMinSalary(reqestJob.getMinSalary());
             jobEntity.setDescription(reqestJob.getDescription());
-            // Save updated entity back to the repository
             jobRepository.save(jobEntity);
             return true;
         }
@@ -93,41 +96,39 @@ public class JobServiceImpl implements JobServices {
 
     }
 
-    private JobCompanyDTO convertJobCompanyDTO(JobEntity jobEntity) {
-        JobCompanyDTO jobCompanyDTO = new JobCompanyDTO();
-        Job job = new Job();
-        job.setId(jobEntity.getId());
-        job.setTitle(jobEntity.getTitle());
-        job.setDescription(jobEntity.getTitle());
-        job.setLocation(jobEntity.getTitle());
-        job.setMaxSalary(jobEntity.getMaxSalary());
-        job.setMinSalary(jobEntity.getMinSalary());
-        job.setMinSalary(jobEntity.getMinSalary());
-        job.setCompanyId(jobEntity.getId());
-        jobCompanyDTO.setJob(job);
-        jobCompanyDTO.setCompany(getCompanyDetails(jobEntity.getCompanyId()));
-        return jobCompanyDTO;
-    }
 
     private Company getCompanyDetails(Long companyId) {
         try {
-            return restTemplate.getForObject("http://localhost:8081/companies/" + companyId, Company.class);
+            // return restTemplate.getForObject("http://localhost:8081/companies/" + companyId, Company.class);
+            return restTemplate.getForObject("http://COMPANY-SERVICE:8081/companies/" + companyId, Company.class);
         } catch (RestClientException e) {
             return null;
         }
     }
 
-    private Job convertJobEntityToJob(JobEntity jobEntity) {
-        Job job = new Job();
-        job.setId(jobEntity.getId());
-        job.setTitle(jobEntity.getTitle());
-        job.setDescription(jobEntity.getTitle());
-        job.setLocation(jobEntity.getTitle());
-        job.setMaxSalary(jobEntity.getMaxSalary());
-        job.setMinSalary(jobEntity.getMinSalary());
-        job.setMinSalary(jobEntity.getMinSalary());
-        job.setCompanyId(jobEntity.getId());
-        return job;
+    private List<Review> getReviews(Long companyId) {
+        try {
+            // return restTemplate.getForObject("http://localhost:8081/companies/" + companyId, Company.class);
+            ResponseEntity<List<Review>> reviewRespose = restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews?companyId=" + companyId, HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
+            });
+            return reviewRespose.getBody();
+        } catch (RestClientException e) {
+            return null;
+        }
+    }
+
+    private JobDTO convertJobEntityToJobCompanyDTO(JobEntity jobEntity) {
+        JobDTO jobDTO = new JobDTO();
+        jobDTO.setId(jobEntity.getId());
+        jobDTO.setTitle(jobEntity.getTitle());
+        jobDTO.setDescription(jobEntity.getTitle());
+        jobDTO.setLocation(jobEntity.getTitle());
+        jobDTO.setMaxSalary(jobEntity.getMaxSalary());
+        jobDTO.setMinSalary(jobEntity.getMinSalary());
+        jobDTO.setMinSalary(jobEntity.getMinSalary());
+        jobDTO.setCompany(getCompanyDetails(jobEntity.getCompanyId()));
+        jobDTO.setReviews(getReviews(jobEntity.getCompanyId()));
+        return jobDTO;
     }
 
     private JobEntity convertJobToJobEntity(Job job) {

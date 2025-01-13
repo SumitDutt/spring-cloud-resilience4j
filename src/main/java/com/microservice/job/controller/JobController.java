@@ -1,6 +1,6 @@
 package com.microservice.job.controller;
 import com.microservice.job.bean.Job;
-import com.microservice.job.dto.JobCompanyDTO;
+import com.microservice.job.dto.JobDTO;
 import com.microservice.job.service.JobServices;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ public class JobController {
     JobServices jobServices;
 
     @GetMapping
-    public List<JobCompanyDTO> findAll() {
+    public List<JobDTO> findAll() {
         return jobServices.findAll();
     }
 
@@ -29,10 +29,10 @@ public class JobController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Job> getJobById(@PathVariable Long id) {
-        Job job = jobServices.jobById(id);
-        if (job != null)
-            return new ResponseEntity<>(job, HttpStatus.OK);
+    public ResponseEntity<JobDTO> getJobById(@PathVariable Long id) {
+        JobDTO jobDTO = jobServices.jobById(id);
+        if (jobDTO != null)
+            return new ResponseEntity<>(jobDTO, HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
      //@RequestMapping(value = "/jobs/{id}",method =RequestMethod.PUT)
