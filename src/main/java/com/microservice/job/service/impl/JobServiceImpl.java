@@ -1,8 +1,11 @@
 package com.microservice.job.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservice.job.bean.Company;
 import com.microservice.job.bean.Job;
 import com.microservice.job.bean.Review;
+import com.microservice.job.config.CompanyClient;
+import com.microservice.job.config.ReviewClient;
 import com.microservice.job.dto.JobDTO;
 import com.microservice.job.entity.JobEntity;
 import com.microservice.job.repository.JobRepository;
@@ -29,7 +32,12 @@ public class JobServiceImpl implements JobServices {
     }
 
     @Autowired
-    RestTemplate restTemplate;
+    CompanyClient companyClient;
+    @Autowired
+    ReviewClient reviewClient;
+    @Autowired
+    ObjectMapper objectMapper;
+
 
     @Override
     public List<JobDTO> findAll() {
@@ -100,7 +108,10 @@ public class JobServiceImpl implements JobServices {
     private Company getCompanyDetails(Long companyId) {
         try {
             // return restTemplate.getForObject("http://localhost:8081/companies/" + companyId, Company.class);
-            return restTemplate.getForObject("http://COMPANY-SERVICE:8081/companies/" + companyId, Company.class);
+            //return restTemplate.getForObject("http://COMPANY-SERVICE:8081/companies/" + companyId, Company.class);
+
+            return companyClient.getCompany(companyId);
+            //return companyClient.getCompany(companyId);
         } catch (RestClientException e) {
             return null;
         }
@@ -109,9 +120,11 @@ public class JobServiceImpl implements JobServices {
     private List<Review> getReviews(Long companyId) {
         try {
             // return restTemplate.getForObject("http://localhost:8081/companies/" + companyId, Company.class);
-            ResponseEntity<List<Review>> reviewRespose = restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews?companyId=" + companyId, HttpMethod.GET, null, new ParameterizedTypeReference<List<Review>>() {
-            });
-            return reviewRespose.getBody();
+            // ResponseEntity<List<Review>> reviewRespose = restTemplate.exchange("http://REVIEW-SERVICE:8083/reviews?companyId=" + companyId, HttpMethod.GET,
+            //       null, new ParameterizedTypeReference<List<Review>>() {
+            //});
+            //return reviewRespose.getBody();
+            return reviewClient.getReviews(companyId);
         } catch (RestClientException e) {
             return null;
         }
