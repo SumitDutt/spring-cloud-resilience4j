@@ -23,14 +23,14 @@ public class CompanyController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addJob(@RequestBody Company company) {
+    public ResponseEntity<String> addCompany(@RequestBody Company company) {
         compayServices.addCopany(company);
         return new ResponseEntity<>("Add Company Succefully", HttpStatus.CREATED);
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Company> getJobById(@PathVariable Long id) {
+    public ResponseEntity<Company> getCompanyById(@PathVariable Long id) {
         Company company = compayServices.companyById(id);
         if (company != null)
             return new ResponseEntity<>(company, HttpStatus.OK);
@@ -39,14 +39,14 @@ public class CompanyController {
 
     //@RequestMapping(value = "/jobs/{id}",method =RequestMethod.PUT)
     @PutMapping("/{id}")
-    public ResponseEntity<String> UpdateJob(@PathVariable Long id, @RequestBody Company company) {
+    public ResponseEntity<String> UpdateCompany(@PathVariable Long id, @RequestBody Company company) {
         if (compayServices.updateCompany(id, company))
             return new ResponseEntity<>("Company Updated Succefully", HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteJobById(@PathVariable Long id) {
+    public ResponseEntity<String> deleteCompanyById(@PathVariable Long id) {
         if (compayServices.companyDeleteById(id))
             return new ResponseEntity<>("Company Deleted Succefully", HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
