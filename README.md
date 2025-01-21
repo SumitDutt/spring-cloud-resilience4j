@@ -38,7 +38,7 @@ resilience4j.ratelimiter.instances.companyBreaker.limit-for-period = 2
 
 
 # Expose health endpoint
-management.endpoints.web.exposure.include=health
-management.endpoint.health.show-details=always
-management.health.circuitbreakers.enabled=true
-#management.health.ratelimiter.enabled=true
+management.endpoints.web.exposure.include=health</br>
+management.endpoint.health.show-details=always</br>
+management.health.circuitbreakers.enabled=true</br>
+#management.health.ratelimiter.enabled=true</br>
