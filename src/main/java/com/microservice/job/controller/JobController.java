@@ -1,4 +1,5 @@
 package com.microservice.job.controller;
+
 import com.microservice.job.bean.Job;
 import com.microservice.job.dto.JobDTO;
 import com.microservice.job.service.JobServices;
@@ -35,11 +36,12 @@ public class JobController {
             return new ResponseEntity<>(jobDTO, HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-     //@RequestMapping(value = "/jobs/{id}",method =RequestMethod.PUT)
+
+    //@RequestMapping(value = "/jobs/{id}",method =RequestMethod.PUT)
     @PutMapping("/{id}")
     public ResponseEntity<String> UpdateJob(@PathVariable Long id, @RequestBody Job job) {
         if (jobServices.updateJob(id, job))
-        return new ResponseEntity<>("Job Updated Succefully", HttpStatus.OK);
+            return new ResponseEntity<>("Job Updated Succefully", HttpStatus.OK);
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 

@@ -10,6 +10,10 @@ import com.microservice.job.dto.JobDTO;
 import com.microservice.job.entity.JobEntity;
 import com.microservice.job.repository.JobRepository;
 import com.microservice.job.service.JobServices;
+import io.github.resilience4j.bulkhead.annotation.Bulkhead;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
+import io.github.resilience4j.retry.annotation.Retry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -19,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -38,16 +43,26 @@ public class JobServiceImpl implements JobServices {
     @Autowired
     ObjectMapper objectMapper;
 
+    int attempt =0;
 
     @Override
+     // @CircuitBreaker(name="companyBreaker",fallbackMethod = "companyBreakerFallback")
+    //@Retry(name="ompanyBreaker",fallbackMethod = "companyBreakerFallback")
+   // @RateLimiter(name="companyBreaker",fallbackMethod = "companyBreakerFallback")
+
     public List<JobDTO> findAll() {
+        System.out.println("Attempt ="+ ++attempt);
+
         List<JobEntity> jobEntityList = jobRepository.findAll();
         return jobEntityList
                 .stream()
                 .map(this::convertJobEntityToJobCompanyDTO)
                 .collect(Collectors.toList());
     }
+public List<String> companyBreakerFallback(Exception e){
 
+        return Arrays.asList("Dummy");
+}
     @Override
     public JobDTO jobById(Long id) {
         Optional<JobEntity> jobEntityOptioal = jobRepository.findById(id);
